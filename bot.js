@@ -13,6 +13,17 @@ const api = new ChatGPTAPI({
   apiKey: process.env.API_KEY,
 });
 
+// Response
+
+async function responseTime(ctx, next) {
+  const before = Date.now();
+  await next();
+  const after = Date.now();
+  console.log(`Response time: ${after - before} ms`);
+}
+
+bot.use(responseTime);
+
 // Admin
 
 const BOT_DEVELOPER = 0 | process.env.BOT_DEVELOPER;
@@ -90,30 +101,42 @@ bot.on("message", async (ctx) => {
         });
       }
       await deleteMessageWithDelay(ctx.chat.id, statusMessage.message_id, 3000);
-      await Promise.race([
-        new Promise((_, reject) =>
-          setTimeout(
-            () => reject(new Error("Function execution timed out.")),
-            7000
-          )
-        ),
-        new Promise(async (resolve) => {
-          const res = await api.sendMessage(ctx.msg.text);
-          console.log(res.detail.usage);
-          await ctx
-            .reply(
-              `${res.text}\n\n*${res.detail.usage.total_tokens} tokens used in this query*`,
-              {
-                reply_to_message_id: ctx.message.message_id,
-                parse_mode: "Markdown",
-              }
-            )
-            .then(() =>
-              console.log(`Function executed successfully from ${ctx.chat.id}`)
-            );
-          resolve();
-        }),
-      ]);
+      async function sendMessageWithTimeout(ctx) {
+        try {
+          const resultPromise = api.sendMessage(ctx.msg.text);
+
+          const result = await Promise.race([
+            resultPromise,
+            new Promise((_, reject) => {
+              setTimeout(() => {
+                reject("Function timeout");
+              }, 6000);
+            }),
+          ]);
+
+          console.log(result.detail.usage);
+
+          await ctx.reply(
+            `${result.text}\n\n*${result.detail.usage.total_tokens} tokens used in this query*`,
+            {
+              reply_to_message_id: ctx.message.message_id,
+              parse_mode: "Markdown",
+            }
+          );
+
+          console.log(`Function executed successfully from ${ctx.chat.id}`);
+        } catch (error) {
+          if (error === "Function timeout") {
+            await ctx.reply("*Query timed out.*", {
+              parse_mode: "Markdown",
+              reply_to_message_id: ctx.message.message_id,
+            });
+          } else {
+            throw error;
+          }
+        }
+      }
+      await sendMessageWithTimeout(ctx);
     } catch (error) {
       if (error instanceof GrammyError) {
         if (error.message.includes("Forbidden: bot was blocked by the user")) {
