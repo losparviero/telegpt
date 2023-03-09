@@ -16,11 +16,11 @@ I also have an older project [ChatGPT Telegram Bot](https://github.com/Grahtni/C
 
 1. Clone git repo.
 2. Run ```npm i``` in project folder. This will install the required dependencies.
-3. Populate .env file with bot token, bot dev ID and OpenAI API key.
+3. Populate .env file with bot token, bot dev ID(s) and OpenAI API key.
 
 #### Bot token can be obtained from @BotFather.
 
-#### Bot dev ID refers to the user ID of your Telegram account. This is needed for logging purposes.
+#### Bot dev ID refers to the user ID of your Telegram account. This is to prevent unauthorised access. You can add multiple IDs separated by commas.
 
 #### API key can be obtained from OpenAI.
 

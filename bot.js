@@ -56,7 +56,7 @@ bot.command("start", async (ctx) => {
 bot.command("help", async (ctx) => {
   await ctx
     .reply(
-      "*@anzubo Project.*\n\n_This is a utility bot using OpenAI's Chat API.\nAsk any query to get started!_",
+      "*@anzubo Project.*\n\n_This is a chat bot using OpenAI's Chat API.\nAsk any query to get started!_",
       { parse_mode: "Markdown" }
     )
     .then(console.log("Help command sent to", ctx.chat.id));
@@ -179,15 +179,12 @@ bot.on("message", async (ctx) => {
           }),
         ]);
 
-        console.log(result.detail.usage);
-
         await ctx.reply(`${result.text}`, {
           reply_to_message_id: ctx.message.message_id,
           parse_mode: "Markdown",
         });
-        console.log(
-          `${result.detail.usage.total_tokens} tokens used in this query`
-        );
+
+        console.log(result.detail.usage);
 
         console.log(`Function executed successfully from ${ctx.chat.id}`);
       } catch (error) {
