@@ -108,6 +108,23 @@ bot.command("ban", async (ctx) => {
     .then(console.log("Ban command invoked by", ctx.chat.id));
 });
 
+// Misc
+
+bot.command("cmd", async (ctx) => {
+  if (!ctx.chat.type == "private") {
+    await bot.api.sendMessage(
+      ctx.chat.id,
+      "*Channels and groups are not supported presently.*",
+      { parse_mode: "Markdown" }
+    );
+    return;
+  }
+  await ctx.reply(
+    "*Here are the commands available:\n\nUsers*\n_/start Start the bot\n/help Know more_\n\n*Admins*\n_/add [id] Authorize user\n/ban [id] Ban user_",
+    { parse_mode: "Markdown" }
+  );
+});
+
 // Messages
 
 bot.on("message", async (ctx) => {
