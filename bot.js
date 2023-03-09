@@ -13,6 +13,17 @@ const api = new ChatGPTAPI({
   apiKey: process.env.API_KEY,
 });
 
+// Admin
+
+const authorizedUsers = process.env.BOT_DEVELOPER?.split(",").map(Number) || [];
+bot.use(async (ctx, next) => {
+  ctx.config = {
+    botDevelopers: authorizedUsers,
+    isDeveloper: authorizedUsers.includes(ctx.chat?.id),
+  };
+  await next();
+});
+
 // Response
 
 async function responseTime(ctx, next) {
@@ -23,17 +34,6 @@ async function responseTime(ctx, next) {
 }
 
 bot.use(responseTime);
-
-// Admin
-
-const BOT_DEVELOPER = 0 | process.env.BOT_DEVELOPER;
-bot.use(async (ctx, next) => {
-  ctx.config = {
-    botDeveloper: BOT_DEVELOPER,
-    isDeveloper: ctx.chat?.id === BOT_DEVELOPER,
-  };
-  await next();
-});
 
 // Commands
 
@@ -59,7 +59,7 @@ bot.command("start", async (ctx) => {
 bot.command("help", async (ctx) => {
   await ctx
     .reply(
-      "*@anzubo Project.*\n\n_This is a utility bot using OpenAI's API (paid).\nUnauthorized use is not permitted.\nIn the future I may allow users to set their own API keys._",
+      "*@anzubo Project.*\n\n_This is a utility bot using OpenAI's API (paid).\nUnauthorized use is not permitted._",
       { parse_mode: "Markdown" }
     )
     .then(console.log("Help command sent to", ctx.chat.id));
@@ -110,7 +110,7 @@ bot.on("message", async (ctx) => {
             new Promise((_, reject) => {
               setTimeout(() => {
                 reject("Function timeout");
-              }, 6000);
+              }, 60000);
             }),
           ]);
 
