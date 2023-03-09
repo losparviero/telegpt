@@ -48,7 +48,7 @@ bot.command("start", async (ctx) => {
   }
   await ctx
     .reply(
-      "*Welcome!* ✨\n_This is a private ChatGPT instance.\nIf you want to request access please get in touch!_",
+      "*Welcome!* ✨\n_This is a private ChatGPT instance.\nIf you want to request access, please get in touch!_",
       {
         parse_mode: "Markdown",
       }
