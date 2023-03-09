@@ -1,10 +1,14 @@
-# ChatGPT Telegram Bot
+# TeleGPT
 
 Now use ChatGPT in Telegram!
 
+<br>
+
 ### Brief Note
 
-This uses the official ChatGPT API which is paid hence will require an API key from OpenAI. You'll be billed for usage accordingly.
+This uses the official ChatGPT API which is paid hence will require an API key from OpenAI. You'll be billed for usage accordingly. Check OpenAI's website for pricing.
+
+I also have an older project [ChatGPT Telegram Bot](https://github.com/Grahtni/ChatGPT-Telegram-Bot) which uses the chatgpt lib utilizing a puppeteer instance which doesn't need an API. However going the API route is much smoother as it doesn't have to deal with things like auth & captchas.
 
 <br>
 

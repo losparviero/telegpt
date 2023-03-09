@@ -80,6 +80,7 @@ bot.on("message", async (ctx) => {
   );
 
   // Logic
+
   if (!ctx.config.isDeveloper) {
     await bot.api.sendMessage(
       process.env.BOT_DEVELOPER,
@@ -102,6 +103,9 @@ bot.on("message", async (ctx) => {
       });
     }
     await deleteMessageWithDelay(ctx.chat.id, statusMessage.message_id, 3000);
+
+    // GPT
+
     async function sendMessageWithTimeout(ctx) {
       try {
         const resultPromise = api.sendMessage(ctx.msg.text);
@@ -137,6 +141,7 @@ bot.on("message", async (ctx) => {
         }
       }
     }
+
     await sendMessageWithTimeout(ctx);
   } catch (error) {
     if (error instanceof GrammyError) {
