@@ -56,7 +56,7 @@ bot.command("start", async (ctx) => {
 bot.command("help", async (ctx) => {
   await ctx
     .reply(
-      "*@anzubo Project.*\n\n_This is a utility bot using OpenAI's Chat API._",
+      "*@anzubo Project.*\n\n_This is a utility bot using OpenAI's Chat API.\nAsk any query to get started!_",
       { parse_mode: "Markdown" }
     )
     .then(console.log("Help command sent to", ctx.chat.id));
