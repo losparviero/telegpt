@@ -47,19 +47,16 @@ bot.command("start", async (ctx) => {
     return;
   }
   await ctx
-    .reply(
-      "*Welcome!* ✨\n_This is a private ChatGPT instance.\nIf you want to request access, please get in touch!_",
-      {
-        parse_mode: "Markdown",
-      }
-    )
+    .reply("*Welcome!* ✨\n_Send any query or ask questions._", {
+      parse_mode: "Markdown",
+    })
     .then(console.log("New user added:\n", ctx.from));
 });
 
 bot.command("help", async (ctx) => {
   await ctx
     .reply(
-      "*@anzubo Project.*\n\n_This is a utility bot using OpenAI's API (paid).\nUnauthorized use is not permitted._",
+      "*@anzubo Project.*\n\n_This is a utility bot using OpenAI's Chat API._",
       { parse_mode: "Markdown" }
     )
     .then(console.log("Help command sent to", ctx.chat.id));
