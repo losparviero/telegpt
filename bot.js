@@ -48,7 +48,7 @@ bot.command("start", async (ctx) => {
   }
   await ctx
     .reply(
-      "*Welcome!* ✨\n_This is a private ChatGPT instance for @anzubo.\nIf you want to request access please get in touch!_",
+      "*Welcome!* ✨\n_This is a private ChatGPT instance.\nIf you want to request access please get in touch!_",
       {
         parse_mode: "Markdown",
       }
@@ -81,88 +81,88 @@ bot.on("message", async (ctx) => {
 
   // Logic
   if (!ctx.config.isDeveloper) {
-    await ctx.reply("*You don't have authorization to use this bot.*", {
-      reply_to_message_id: ctx.message.message_id,
+    await bot.api.sendMessage(
+      process.env.BOT_DEVELOPER,
+      `*From: ${name} (@${from.username}) ID: ${from.id}\nMessage: ${ctx.message.text}*`,
+      { parse_mode: "Markdown" }
+    );
+  }
+  try {
+    const statusMessage = await ctx.reply(`*Processing*`, {
       parse_mode: "Markdown",
     });
-  } else {
-    try {
-      const statusMessage = await ctx.reply(`*Processing*`, {
-        parse_mode: "Markdown",
+    async function deleteMessageWithDelay(fromId, messageId, delayMs) {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          bot.api
+            .deleteMessage(fromId, messageId)
+            .then(() => resolve())
+            .catch((error) => reject(error));
+        }, delayMs);
       });
-      async function deleteMessageWithDelay(fromId, messageId, delayMs) {
-        return new Promise((resolve, reject) => {
-          setTimeout(() => {
-            bot.api
-              .deleteMessage(fromId, messageId)
-              .then(() => resolve())
-              .catch((error) => reject(error));
-          }, delayMs);
-        });
-      }
-      await deleteMessageWithDelay(ctx.chat.id, statusMessage.message_id, 3000);
-      async function sendMessageWithTimeout(ctx) {
-        try {
-          const resultPromise = api.sendMessage(ctx.msg.text);
+    }
+    await deleteMessageWithDelay(ctx.chat.id, statusMessage.message_id, 3000);
+    async function sendMessageWithTimeout(ctx) {
+      try {
+        const resultPromise = api.sendMessage(ctx.msg.text);
 
-          const result = await Promise.race([
-            resultPromise,
-            new Promise((_, reject) => {
-              setTimeout(() => {
-                reject("Function timeout");
-              }, 60000);
-            }),
-          ]);
+        const result = await Promise.race([
+          resultPromise,
+          new Promise((_, reject) => {
+            setTimeout(() => {
+              reject("Function timeout");
+            }, 60000);
+          }),
+        ]);
 
-          console.log(result.detail.usage);
+        console.log(result.detail.usage);
 
-          await ctx.reply(
-            `${result.text}\n\n*${result.detail.usage.total_tokens} tokens used in this query*`,
-            {
-              reply_to_message_id: ctx.message.message_id,
-              parse_mode: "Markdown",
-            }
-          );
-
-          console.log(`Function executed successfully from ${ctx.chat.id}`);
-        } catch (error) {
-          if (error === "Function timeout") {
-            await ctx.reply("*Query timed out.*", {
-              parse_mode: "Markdown",
-              reply_to_message_id: ctx.message.message_id,
-            });
-          } else {
-            throw error;
+        await ctx.reply(
+          `${result.text}\n\n*${result.detail.usage.total_tokens} tokens used in this query*`,
+          {
+            reply_to_message_id: ctx.message.message_id,
+            parse_mode: "Markdown",
           }
-        }
-      }
-      await sendMessageWithTimeout(ctx);
-    } catch (error) {
-      if (error instanceof GrammyError) {
-        if (error.message.includes("Forbidden: bot was blocked by the user")) {
-          console.log("Bot was blocked by the user");
-        } else if (error.message.includes("Call to 'sendMessage' failed!")) {
-          console.log("Error sending message: ", error);
-          await ctx.reply(`*Error contacting Telegram.*`, {
+        );
+
+        console.log(`Function executed successfully from ${ctx.chat.id}`);
+      } catch (error) {
+        if (error === "Function timeout") {
+          await ctx.reply("*Query timed out.*", {
             parse_mode: "Markdown",
             reply_to_message_id: ctx.message.message_id,
           });
         } else {
-          await ctx.reply(`*An error occurred: ${error.message}*`, {
-            parse_mode: "Markdown",
-            reply_to_message_id: ctx.message.message_id,
-          });
+          throw error;
         }
-        console.log(`Error sending message: ${error.message}`);
-        return;
-      } else {
-        console.log(`An error occured:`, error);
-        await ctx.reply(`*An error occurred.*\n_Error: ${error.message}_`, {
+      }
+    }
+    await sendMessageWithTimeout(ctx);
+  } catch (error) {
+    if (error instanceof GrammyError) {
+      if (error.message.includes("Forbidden: bot was blocked by the user")) {
+        console.log("Bot was blocked by the user");
+      } else if (error.message.includes("Call to 'sendMessage' failed!")) {
+        console.log("Error sending message: ", error);
+        await ctx.reply(`*Error contacting Telegram.*`, {
           parse_mode: "Markdown",
           reply_to_message_id: ctx.message.message_id,
         });
-        return;
+      } else {
+        await ctx.reply(`*An error occurred: ${error.message}*`, {
+          parse_mode: "Markdown",
+          reply_to_message_id: ctx.message.message_id,
+        });
       }
+      console.log(`Error sending message: ${error.message}`);
+      return;
+    } else {
+      console.log(`An error occured:`, error);
+      await ctx.reply(`*An error occurred.*\n_Error: ${error.message}_`, {
+        parse_mode: "Markdown",
+        reply_to_message_id: ctx.message.message_id,
+      });
+      return;
     }
   }
 });
