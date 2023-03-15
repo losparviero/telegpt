@@ -99,21 +99,11 @@ bot.on("message", async (ctx) => {
       { parse_mode: "HTML" }
     );
   }
+
   try {
     const statusMessage = await ctx.reply(`*Processing*`, {
       parse_mode: "Markdown",
     });
-    async function deleteMessageWithDelay(fromId, messageId, delayMs) {
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
-          bot.api
-            .deleteMessage(fromId, messageId)
-            .then(() => resolve())
-            .catch((error) => reject(error));
-        }, delayMs);
-      });
-    }
-    await deleteMessageWithDelay(ctx.chat.id, statusMessage.message_id, 3000);
 
     // GPT
 
@@ -151,6 +141,7 @@ bot.on("message", async (ctx) => {
     }
 
     await sendMessageWithTimeout(ctx);
+    await statusMessage.delete();
   } catch (error) {
     if (error instanceof GrammyError) {
       if (error.message.includes("Forbidden: bot was blocked by the user")) {
