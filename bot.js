@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 import { Bot, session, GrammyError, HttpError } from "grammy";
 import { run, sequentialize } from "@grammyjs/runner";
+import { hydrate } from "@grammyjs/hydrate";
 import { ChatGPTAPI } from "chatgpt";
 
 // Bot
@@ -42,8 +43,11 @@ function getSessionKey(ctx) {
   return ctx.chat?.id.toString();
 }
 
+// Plugins
+
 bot.use(sequentialize(getSessionKey));
 bot.use(session({ getSessionKey }));
+bot.use(hydrate());
 
 // Commands
 
@@ -70,69 +74,6 @@ bot.command("help", async (ctx) => {
       { parse_mode: "Markdown" }
     )
     .then(console.log("Help command sent to", ctx.chat.id));
-});
-
-// Moderation
-
-bot.command("add", async (ctx) => {
-  if (!ctx.chat.type == "private") {
-    await bot.api.sendMessage(
-      ctx.chat.id,
-      "*Channels and groups are not supported presently.*",
-      { parse_mode: "Markdown" }
-    );
-    return;
-  }
-  if (!ctx.config.isDeveloper) {
-    await ctx.reply("*You're not authorized to use this command.*", {
-      parse_mode: "Markdown",
-    });
-    return;
-  }
-  await ctx
-    .reply("*This command hasn't been implemented yet.*", {
-      parse_mode: "Markdown",
-    })
-    .then(console.log("Add command invoked by", ctx.chat.id));
-});
-
-bot.command("ban", async (ctx) => {
-  if (!ctx.chat.type == "private") {
-    await bot.api.sendMessage(
-      ctx.chat.id,
-      "*Channels and groups are not supported presently.*",
-      { parse_mode: "Markdown" }
-    );
-    return;
-  }
-  if (!ctx.config.isDeveloper) {
-    await ctx.reply("*You're not authorized to use this command.*", {
-      parse_mode: "Markdown",
-    });
-    return;
-  }
-  await ctx
-    .reply("*This command hasn't been implemented yet.*", {
-      parse_mode: "Markdown",
-    })
-    .then(console.log("Ban command invoked by", ctx.chat.id));
-});
-
-// Misc
-
-bot.command("cmd", async (ctx) => {
-  if (!ctx.chat.type == "private") {
-    await bot.api.sendMessage(
-      ctx.chat.id,
-      "*Channels and groups are not supported presently.*",
-      { parse_mode: "Markdown" }
-    );
-    return;
-  }
-  await ctx.reply(
-    "*Here are the commands available:\n\nUsers*\n_/start Start the bot\n/help Know more_\n\n*Admins*\n_/add [id] Authorize user\n/ban [id] Ban user_",
-    { parse_mode: "Markdown" }
-  );
 });
 
 // Messages
